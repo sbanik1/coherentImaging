@@ -1,2 +1,2 @@
 # coherentImaging
-Simple simulation to understand effects of coherent imaging.
+Simple simulations to understand effects of coherent imaging.
