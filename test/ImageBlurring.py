@@ -23,7 +23,7 @@ if (os.path.isdir(startUp.saveDir) == False):
 # %% Input Parameters #########################################################
 # Probe and Imaging Properties =================================================
 lamda = 589                                     # Wavelength [nm]
-NA = 0.1                                       # numerical aperture
+NA = 0.4                                       # numerical aperture
 w0 = 100/3                                      # Waist of incoming collimated probe beam [um]
 P = 1                                           # Total power in probe beam [mW]
 Rad_airy = 1.22*lamda*1e-3/(2*NA)               # radius of the airy disk [um]
@@ -70,6 +70,57 @@ def plotInt(num,X,Y,Int,ROI_rad,alpha_X,alpha_Y,**kwargs):
     plt.show()
     return fig
 
+def plotAll3(num,X,Y,AtomPlane,ASF,ImagePlane,ROI_rad,alpha_X,alpha_Y,**kwargs):
+    # Plot the probe beam and how its altered by the atomic distribution n2D
+    # Inputs:
+    #   num: figure number
+    #   X,Y: X and Y as 2D arrays of plane of the beam [um]
+    #   Probe: Intensity profile of the probe beam w/o atoms as 2D array 
+    #   Atoms: Intensity profile of the probe beam with atoms as 2D array 
+    #   n2D: atomic distribution
+    #   alpha_X and alpha_Y: Dimensionless constants that help define an ROI
+    if (AtomPlane.shape != X.shape or X.shape != Y.shape): 
+        raise Exception('4Fimaging::plotProbe::X, Y, Probe, Atoms and n2D should have same dimensions.')
+    NA = 0    
+    for key, value in kwargs.items(): 
+     if key == 'NA':
+         NA = value 
+    [Ny,Nx] = X.shape
+    #Plot Data
+    fig = plt.figure(num) 
+    fig.clf()
+    ax1=fig.add_subplot(131)
+    c = ax1.pcolor(X[0,:], Y[:,0],AtomPlane*1e6, cmap='Blues', vmin=np.min(ImagePlane*1e6), vmax=np.max(ImagePlane*1e6))
+    ax2=fig.add_subplot(132)
+    c = ax2.pcolor(X[0,:], Y[:,0],ASF*1e6, cmap='Blues', vmin=np.min(ASF*1e6), vmax=np.max(ASF*1e6))
+    ax3=fig.add_subplot(133)
+    c = ax3.pcolor(X[0,:], Y[:,0],ImagePlane*1e6, cmap='Blues', vmin=np.min(ImagePlane*1e6), vmax=np.max(ImagePlane*1e6))
+    ax1.set_title('Intensity @ object plane: \n Total Power = {0} $\mu$W'.format(round(np.sum(AtomPlane)*1e3,2)))
+    if NA!=0:
+            ax2.set_title('ASF: NA = {0}'.format(NA,2))
+    ax3.set_title('Intensity: @ image plane: \n Total Power = {0} $\mu$W'.format(round(np.sum(ImagePlane)*1e3,2)))
+    cbar = fig.colorbar(c, ax=ax1,orientation="horizontal")
+    cbar.ax.tick_params(labelsize=12) 
+    cbar = fig.colorbar(c, ax=ax2,orientation="horizontal")
+    cbar.ax.tick_params(labelsize=12) 
+    cbar = fig.colorbar(c, ax=ax3,orientation="horizontal")
+    cbar.ax.tick_params(labelsize=12)
+    
+    ax1.axis([-alpha_X*ROI_rad, alpha_X*ROI_rad, -alpha_Y*ROI_rad, alpha_Y*ROI_rad])
+    ax2.axis([-alpha_X*ROI_rad, alpha_X*ROI_rad, -alpha_Y*ROI_rad, alpha_Y*ROI_rad])
+    ax3.axis([-alpha_X*ROI_rad, alpha_X*ROI_rad, -alpha_Y*ROI_rad, alpha_Y*ROI_rad])
+    
+    ax1.set_xlabel('X ($\mu$m)')
+    ax2.set_xlabel('X ($\mu$m)')
+    ax3.set_xlabel('X ($\mu$m)')
+    ax1.set_ylabel('Y ($\mu$m)')
+    ax1.set_aspect('equal')
+    ax2.set_aspect('equal')
+    ax3.set_aspect('equal')
+
+    plt.show()
+    return fig
+
 def AtomicDen_Ring(X,Y,rad,thk,N):
     # Generates the 2D atomic density n2D of a ring 
     # Inputs:
@@ -102,15 +153,19 @@ R1 = np.sqrt(X1**2+Y1**2)
 # Generating Data =============================================================
 E1 = GB.PointSourceVec(1,R1[:,:],0,w0,k)
 I1 = GB.BeamInt(E1,P)
-plotInt(1,X1,Y1,I1,ROI_rad,1,1)
 # Generating the PSF, ASF = sqrt(PSF) and generating the Image ================
 ASF = OE.ASF(X1,Y1,Rad_airy,kind='airy')
 def func(x):
     return np.sum(OE.ImageViaPSF(X1, Y1, E1, ASF, norm=x))-np.sum(I1)    
 norm = optimize.fsolve(func, 1/np.sum(ASF))
-plotInt(2,X1,Y1,norm*ASF,ROI_rad,1,1, title = 0)
 I1_blur = OE.ImageViaPSF(X1, Y1, E1, ASF, norm=norm)
-plotInt(3,X1,Y1,I1_blur,ROI_rad,1,1)
+
+figure = plotAll3(11,X1,Y1,I1,(norm*ASF),I1_blur,ROI_rad,1,1,NA = NA )
+cwd = os.getcwd()
+os.chdir(startUp.saveDir)
+figure.set_size_inches(10, 5)
+figure.savefig('ImageBlur_uniformDisk.png')
+os.chdir(cwd)
 
 # %% Input Field: Atomic ring under constant intensity probe ##################
 # Define Array ================================================================
@@ -126,19 +181,22 @@ I1 = GB.BeamInt(E1,P)
 n2D = AtomicDen_Ring(X1,Y1,Rad_ring,Thk_ring,N);
 I1 = I1*np.exp(-sigma*n2D)
 E1 = np.sqrt(I1)
-plotInt(4,X1,Y1,I1,ROI_rad,1,1)
 # Generating the PSF, ASF = sqrt(PSF) and generating the Image ================
 ASF = OE.ASF(X1,Y1,Rad_airy,kind='airy')
 def func(x):
     return np.sum(OE.ImageViaPSF(X1, Y1, E1, ASF, norm=x))-np.sum(I1)    
 norm = optimize.fsolve(func, 1/np.sum(ASF))
-plotInt(5,X1,Y1,norm*ASF,ROI_rad,1,1,title = 0)
 I1_blur = OE.ImageViaPSF(X1, Y1, E1, ASF, norm=norm)
-plotInt(6,X1,Y1,I1_blur,ROI_rad,1,1)
+figure = plotAll3(11,X1,Y1,I1,(norm*ASF),I1_blur,ROI_rad,1,1,NA = NA )
+cwd = os.getcwd()
+os.chdir(startUp.saveDir)
+figure.set_size_inches(10, 5)
+figure.savefig('ImageBlur_ring_Probe_constInt.png')
+os.chdir(cwd)
 
 # %% Input Field: Atomic ring under gaussian intensity probe ##################
 # Define Array ================================================================
-w0 = 7000;                              # radius of gaussian beam [um]
+w0 = 100;                              # radius of gaussian beam [um]
 ROI_rad = 1.5*max(Rad_ring, Rad_airy)   # radius of ROI, defines small ROI [um]
 x = np.linspace(-ROI_rad,ROI_rad,Nx)
 y = np.linspace(-ROI_rad,ROI_rad,Ny)
@@ -150,31 +208,23 @@ I1 = GB.BeamInt(E1,P)
 n2D = AtomicDen_Ring(X1,Y1,Rad_ring,Thk_ring,N);
 I1 = I1*np.exp(-sigma*n2D)
 E1 = np.sqrt(I1)
-figure = plotInt(7,X1,Y1,I1,ROI_rad,1,1)
-cwd = os.getcwd()
-os.chdir(startUp.saveDir)
-figure.set_size_inches(10, 10)
-figure.savefig('ImageBlur_AtomPlane.png')
-os.chdir(cwd)
+
 #Generating the PSF, ASF = sqrt(PSF) and generating the Image =================
 ASF = OE.ASF(X1,Y1,Rad_airy,kind='airy')
 def func(x):
     return np.sum(OE.ImageViaPSF(X1, Y1, E1, ASF, norm=x))-np.sum(I1)    
 norm = optimize.fsolve(func, 1/np.sum(ASF))
-plotInt(8,X1,Y1,norm*ASF,ROI_rad,1,1,title = 0)
 I1_blur = OE.ImageViaPSF(X1, Y1, E1, ASF, norm=norm)
-figure  = plotInt(9,X1,Y1,I1_blur,ROI_rad,1,1)
+figure = plotAll3(11,X1,Y1,I1,(norm*ASF),I1_blur,ROI_rad,1,1,NA = NA )
 cwd = os.getcwd()
 os.chdir(startUp.saveDir)
-figure.set_size_inches(10, 10)
-figure.savefig('ImageBlur_ImagePlane.png')
+figure.set_size_inches(10, 5)
+figure.savefig('ImageBlur_ring_Probe_gaussInt.png')
 os.chdir(cwd)
-
 
 # Pixelate the image on Camera ================================================
 [X1_cam,Y1_cam,I1_blur_cam,PixSize_cam] = OE.PixelizeImage(I1_blur,X1,Y1,0.3)
 plotInt(10,X1_cam,Y1_cam,I1_blur_cam,ROI_rad,1,1)
-
 
 
 

@@ -16,3 +16,19 @@ sys.path.insert(1, '/Users/swarnav/Google Drive/Work/Projects/Imaging/coherentIm
 saveDir = '/Users/swarnav/Google Drive/Work/Projects/Imaging/coherentImaging/test/out'
 # %% Set some default values ##################################################
 plt.rcParams.update({'font.size': 14})
+
+params = {
+    'image.origin': 'lower',
+    'image.interpolation': 'nearest',
+    'image.cmap': 'gray',
+    'axes.grid': True,
+    'axes.labelsize': 14, # fontsize for x and y labels (was 10)
+    'axes.titlesize': 12,
+    'font.size': 8, 
+    'legend.fontsize': 6, # was 10
+    'xtick.labelsize': 12,
+    'ytick.labelsize': 12,
+    'text.usetex': False,
+    'font.family': 'serif',
+}
+plt.rcParams.update(params)
