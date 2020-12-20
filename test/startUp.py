@@ -15,7 +15,6 @@ sys.path.insert(1, '/Users/swarnav/Google Drive/Work/Projects/Imaging/coherentIm
 # %% Define the output directory ##############################################
 saveDir = '/Users/swarnav/Google Drive/Work/Projects/Imaging/coherentImaging/test/out'
 # %% Set some default values ##################################################
-plt.rcParams.update({'font.size': 14})
 
 params = {
     'image.origin': 'lower',
