@@ -7,15 +7,15 @@ A point object emits spherical waves. A lens intercepts a portion of this spheri
 <table>
 <tr>
 <td> <div align="left"> NA = 0.1 </div></td>
-<td><img src="/images/ImageBlur_ring_Probe_gaussInt_NA10E-2.png" alt="Drawing" width="600"/> </td>
+<td><img src="/images/ImageBlur_ring_Probe_gaussInt_NA10E-2.png" alt="Drawing" width="400"/> </td>
 </tr>
 <tr>
 <td> <div align="left"> NA = 0.25 </div></td>
-<td><img src="/images/ImageBlur_ring_Probe_gaussInt_NA25E-2.png" alt="Drawing" width="600"/> </td>
+<td><img src="/images/ImageBlur_ring_Probe_gaussInt_NA25E-2.png" alt="Drawing" width="400"/> </td>
 </tr>
 <tr>
 <td> <div align="left"> NA = 0.40 </div></td>
-<td><img src="/images/ImageBlur_ring_Probe_gaussInt_NA40E-2.png" alt="Drawing" width="600"/> </td>
+<td><img src="/images/ImageBlur_ring_Probe_gaussInt_NA40E-2.png" alt="Drawing" width="400"/> </td>
 </tr>
 </table>
 
@@ -29,18 +29,17 @@ This repo contains the source code, some use case examples and sample data to pl
 - Clone this repository. 
 ```git clone https://github.com/sbanik1/coherentImaging <lcl_dir>```
 - Modify the startup code *../test/startUp.py* as follows. 
-  - Change the variable *FunctionsPath* and set it to the path to directory *../src/* on your local machine.
-  - Change the variable *DataFolderPath* and set it to the path to directory *../test/resources/* on your local machine.
+  - Change the  path directory  for the command ```sys.path.insert(1, '../coherentImaging/src')``` to the path for the directory *../src/* on your local machine.
+  - Change the variable *saveDir* and set it to the path to directory *../test/out/* on your local machine.
 <table>
 <tr>
 <td><img src="/images/Installation.png" alt="Drawing" width="700"/> </td>
 </tr>
 </table>
 
-- Run the examples in the directory *../test/use_case_examples/*, by either running them on the MATLAB IDE or via the command line.
-  - Change directory ```cd "../probeReconstruction/test/use_case_examples"```
-  - Run the MATLAB application ```/Applications/MATLAB_R2020a.app/bin/matlab -nodesktop```
-  - Run the example ```run PCA_EvaluateBasis.m```
+- Run the examples in the directory *../test/*, by either running them on an IDE or via the command line.
+  - Change directory ```cd "../coherentImaging/test"```
+  - Run the example ```ImageBlurring.py``
   
   
  ## References
