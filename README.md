@@ -2,7 +2,7 @@
 Simple simulations to understand effects of coherent imaging.
 
 ## Overview
-A point object emits spherical waves. A lens intercepts a portion of this spherical wave, and refocuses it onto a blurred point in the image plane. The point spread function (PSF) describes the response of an imaging system to a point source or point object [[1]]. For a single lens, an on-axis point source in the object plane produces an Airy disc PSF in the image plane. Below are some simulations of coherent absorption imaging of a ring shaped atomic cloud. The probe used is gaussian in shape.
+A point object emits spherical waves. A lens intercepts a portion of this spherical wave, and refocuses it onto a blurred point in the image plane. The point spread function (PSF) describes the response of an imaging system to a point source or point object [1]. For a single lens, an on-axis point source in the object plane produces an Airy disc PSF in the image plane. Below are some simulations of coherent absorption imaging of a ring shaped atomic cloud. The probe used is gaussian in shape.
 
 <table>
 <tr>
